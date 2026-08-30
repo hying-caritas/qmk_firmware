@@ -44,10 +44,9 @@ extern "C" {
 #define CFG_TUSB_MCU OPT_MCU_RP2040
 
 // TinyUSB host debug log (TU_LOG) is written into a RAM ring buffer on
-// core1 and dumped with the `usbdebug` virtser command. To enable, set
-// CFG_TUSB_DEBUG to 1 (errors), 2 (+ warnings) or 3 (+ info), rebuild,
-// then type `usbdebug` in the virtser terminal.
-#define CFG_TUSB_DEBUG 0
+// core1 and dumped with the `usbdebug` virtser command. Level 1 =
+// errors, 2 = + warnings, 3 = + info.
+#define CFG_TUSB_DEBUG 1
 
 // Only defined when debug is enabled: the sink function does not exist
 // otherwise, and TinyUSB only references it under CFG_TUSB_DEBUG.
