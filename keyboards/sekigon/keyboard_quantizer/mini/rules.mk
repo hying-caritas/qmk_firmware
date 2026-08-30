@@ -1,8 +1,9 @@
 SRC += matrix.c c1_main.c c1_usbh.c tusb_os_custom.c
 CUSTOM_MATRIX = lite
-
-# Mouse forwarding is added together with the vial keymap mouse support
-POINTING_DEVICE_ENABLE = no
+# Only enables the pointing device module; the driver struct is not
+# implemented, mouse reports are injected via mouse_report_hook and
+# pointing_device_task() in matrix.c (see TODO there)
+POINTING_DEVICE_DRIVER = custom
 
 CRT0_EXTRA_CORES_NUMBER = 1
 

@@ -11,6 +11,7 @@
 #include "report_parser.h"
 
 matrix_row_t           *matrix_dest;
+bool                    mouse_send_flag = false;
 static uint8_t          kbd_addr;
 static uint8_t          kbd_instance;
 static int32_t          led_count = -1;
@@ -163,8 +164,44 @@ __attribute__((weak)) void keyboard_report_hook(keyboard_parse_result_t const *r
 }
 
 __attribute__((weak)) void mouse_report_hook(mouse_parse_result_t const *report) {
-    // Mouse forwarding is implemented in the vial keymap (quantizer_mouse)
-    (void)report;
+    if (debug_enable) {
+        uprintf("Mouse report\n");
+        uprintf("b:%d ", report->button);
+        uprintf("x:%d ", report->x);
+        uprintf("y:%d ", report->y);
+        uprintf("v:%d ", report->v);
+        uprintf("h:%d ", report->h);
+        uprintf("undef:%u\n", report->undefined);
+    }
+
+    mouse_send_flag = true;
+
+    report_mouse_t mouse = pointing_device_get_report();
+
+    mouse.buttons = report->button;
+
+    mouse.x += report->x;
+    mouse.y += report->y;
+    mouse.v += report->v;
+    mouse.h += report->h;
+
+    pointing_device_set_report(mouse);
+}
+
+// Overriding the core weak pointing_device_task() bypasses
+// pointing_device_task_kb/user and auto-mouse, and makes the
+// POINTING_DEVICE_DRIVER = custom driver struct a no-op. Reports are
+// injected event-driven through mouse_report_hook instead, which does
+// not fit the polling driver interface. Mouse support is untested;
+// TODO: rework onto the custom pointing device driver interface.
+bool pointing_device_task(void) {
+    if (mouse_send_flag) {
+        bool send_report = pointing_device_send();
+        mouse_send_flag  = false;
+        return send_report;
+    }
+
+    return false;
 }
 
 __attribute__((weak)) void system_report_hook(uint16_t report) {
