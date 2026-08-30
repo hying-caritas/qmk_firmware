@@ -8,6 +8,7 @@
 #include "c1.h"
 #include "tusb.h"
 #include "pio_usb_ll.h"
+#include "tusb_os_custom.h"
 #include "virtser.h"
 #include "util.h"
 
@@ -68,15 +69,29 @@ static void cmd_usbinfo(void) {
     print_usb_status();
 }
 
+#if CFG_TUSB_DEBUG
+static void cmd_usbdebug(void) {
+    tusb_print_debug_buffer();
+}
+#endif
+
 static void cmd_help(void) {
+#if CFG_TUSB_DEBUG
+    printf("commands: boot debug version usbinfo usbdebug help (or b d v u h)\n");
+#else
     printf("commands: boot debug version usbinfo help (or b d v u h)\n");
+#endif
 }
 
 static const struct {
     const char *name;
     cmd_fn_t    fn;
 } commands[] = {
-    {"boot", cmd_boot}, {"b", cmd_boot}, {"debug", cmd_debug}, {"d", cmd_debug}, {"version", cmd_version}, {"v", cmd_version}, {"usbinfo", cmd_usbinfo}, {"u", cmd_usbinfo}, {"help", cmd_help}, {"h", cmd_help}, {"?", cmd_help},
+    {"boot", cmd_boot},         {"b", cmd_boot}, {"debug", cmd_debug}, {"d", cmd_debug}, {"version", cmd_version}, {"v", cmd_version}, {"usbinfo", cmd_usbinfo}, {"u", cmd_usbinfo},
+#if CFG_TUSB_DEBUG
+    {"usbdebug", cmd_usbdebug},
+#endif
+    {"help", cmd_help},         {"h", cmd_help}, {"?", cmd_help},
 };
 
 static void exec_command(const char *name) {

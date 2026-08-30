@@ -32,4 +32,5 @@ Enter the bootloader in 2 ways:
   * `debug` (`d`) - toggle debug output
   * `version` (`v`) - show firmware version
   * `usbinfo` (`u`) - show USB host port and device status
+  * `usbdebug` - dump buffered TinyUSB host debug log (needs a debug build with `CFG_TUSB_DEBUG` > 0)
   * `help` (`h`, `?`) - list commands

@@ -78,6 +78,15 @@ bool         osal_queue_empty(osal_queue_t qhdl);
 //--------------------------------------------------------------------+
 uint32_t osal_time_millis(void);
 
+//--------------------------------------------------------------------+
+// DEBUG API (core1 TinyUSB log ring buffer, drained from core0)
+// Compiled only when CFG_TUSB_DEBUG > 0, see tusb_config.h
+//--------------------------------------------------------------------+
+#if CFG_TUSB_DEBUG
+int  tusb_debug_printf(const char *format, ...);
+void tusb_print_debug_buffer(void);
+#endif
+
 #ifdef __cplusplus
 }
 #endif

@@ -3,6 +3,8 @@
 
 #include "ch.h"
 #include "tusb_os_custom.h"
+#include <stdarg.h>
+#include <stdio.h>
 
 //--------------------------------------------------------------------+
 // TASK
@@ -108,3 +110,62 @@ bool osal_queue_empty(osal_queue_t qhdl) {
 uint32_t osal_time_millis(void) {
     return (uint32_t)TIME_I2MS(chVTGetSystemTimeX());
 }
+
+//--------------------------------------------------------------------+
+// DEBUG: core1 TinyUSB log ring buffer, drained from core0
+//--------------------------------------------------------------------+
+// TU_LOG calls on core1 (only compiled with CFG_TUSB_DEBUG > 0) write
+// into this RAM ring buffer; core0 drains it via tusb_print_debug_buffer()
+// (wired to the `usbdebug` virtser command). Core1 cannot printf directly
+// without disturbing the 1ms PIO USB frame timing.
+//
+// Single producer (core1) / single consumer (core0): write_index is
+// published only after the data is written, so no locking is needed.
+// Messages that do not fit are dropped to keep read_index untouched.
+#if CFG_TUSB_DEBUG
+
+#    include "hardware/sync.h"
+
+#    define DEBUG_BUFFER_SIZE (1 << 12)
+#    define DEBUG_LINE_MAX 128
+
+static char              debug_buffer[DEBUG_BUFFER_SIZE];
+static volatile uint32_t write_index;
+static volatile uint32_t read_index;
+
+int tusb_debug_printf(const char *format, ...) {
+    char    line[DEBUG_LINE_MAX];
+    va_list va;
+    va_start(va, format);
+    int len = vsnprintf(line, sizeof(line), format, va);
+    va_end(va);
+    if (len <= 0) {
+        return 0;
+    }
+    if (len > (int)sizeof(line) - 1) {
+        len = (int)sizeof(line) - 1;
+    }
+
+    uint32_t w    = write_index;
+    uint32_t free = (read_index - w - 1) & (DEBUG_BUFFER_SIZE - 1);
+    if ((uint32_t)len > free) {
+        return len; // buffer full, drop the message
+    }
+    for (int i = 0; i < len; i++) {
+        debug_buffer[w] = line[i];
+        w               = (w + 1) & (DEBUG_BUFFER_SIZE - 1);
+    }
+    __dmb(); // make data visible to core0 before publishing write_index
+    write_index = w;
+    return len;
+}
+
+void tusb_print_debug_buffer(void) {
+    while (read_index != write_index) {
+        __dmb(); // pair with the writer's DMB: data written before write_index is visible
+        printf("%c", debug_buffer[read_index]);
+        read_index = (read_index + 1) & (DEBUG_BUFFER_SIZE - 1);
+    }
+}
+
+#endif // CFG_TUSB_DEBUG
