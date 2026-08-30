@@ -204,6 +204,16 @@ bool pointing_device_task(void) {
     return false;
 }
 
+void vendor_report_parser(uint16_t usage_page, hid_report_member_t const *member, uint8_t const *data, uint8_t len) {
+    // For Lenovo thinkpad keyboard(17ef:6047)
+    // TODO: restriction by VID:PID
+    if (usage_page == 0xFFA1 && len >= 1) {
+        mouse_parse_result_t mouse = {0};
+        mouse.h                    = (data[0] & 0x80 ? 0xFF00 : 0) | data[0];
+        mouse_report_hook(&mouse);
+    }
+}
+
 __attribute__((weak)) void system_report_hook(uint16_t report) {
     host_system_send(report);
     wait_ms(TAP_CODE_DELAY);
