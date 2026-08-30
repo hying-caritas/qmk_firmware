@@ -1,0 +1,24 @@
+// Copyright 2023 sekigon-gonnoc
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+#include "keyboard.h"
+#include "pico/stdlib.h"
+#include "c1.h"
+
+volatile bool c1_clock_ready;
+
+void keyboard_pre_init_kb(void) {
+    set_sys_clock_khz(120000, true);
+    c1_clock_ready = true;
+    keyboard_pre_init_user();
+}
+
+bool backing_store_lock(void) {
+    c1_after_flash_operation();
+    return true;
+}
+
+bool backing_store_unlock(void) {
+    c1_before_flash_operation();
+    return true;
+}
