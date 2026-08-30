@@ -24,6 +24,12 @@ See the [build environment setup](https://docs.qmk.fm/#/getting_started_build_to
 
 ## Bootloader
 
-Enter the bootloader in 1 way:
+Enter the bootloader in 2 ways:
 
 * **Keycode in layout**: Press the key mapped to `QK_BOOT` if it is available
+* **Virtser**: Type a command and press Enter through virtser:
+  * `boot` (`b`) - jump to bootloader
+  * `debug` (`d`) - toggle debug output
+  * `version` (`v`) - show firmware version
+  * `usbinfo` (`u`) - show USB host port and device status
+  * `help` (`h`, `?`) - list commands

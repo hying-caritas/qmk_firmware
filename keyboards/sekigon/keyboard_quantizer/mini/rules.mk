@@ -28,3 +28,6 @@ VPATH += lib/pico-sdk/src/common/pico_stdlib/include
 VPATH += lib/pico-sdk/src/common/pico_time/include
 VPATH += lib/pico-sdk/src/common/pico_sync/include
 VPATH += lib/pico-sdk/src/common/pico_util/include
+
+GIT_DESCRIBE := $(shell git describe --tags --long --always --dirty="\\*" 2>/dev/null)
+CFLAGS += -DGIT_DESCRIBE=$(GIT_DESCRIBE)
