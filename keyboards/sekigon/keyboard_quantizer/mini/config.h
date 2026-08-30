@@ -4,7 +4,7 @@
 #pragma once
 
 /* PIO USB host D+ pin (D- is DP+1) */
-#define PIO_USB_DP_PIN_DEFAULT 4
+#define PIO_USB_DP_PIN_DEFAULT 11
 
 /*
  * Feature disable options
