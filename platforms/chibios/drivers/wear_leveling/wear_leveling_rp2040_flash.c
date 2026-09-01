@@ -169,7 +169,7 @@ bool backing_store_init(void) {
     return true;
 }
 
-bool backing_store_unlock(void) {
+__attribute__((weak)) bool backing_store_unlock(void) {
     bs_dprintf("Unlock\n");
     return true;
 }
@@ -204,7 +204,7 @@ bool backing_store_write_bulk(uint32_t address, backing_store_int_t *values, siz
     return true;
 }
 
-bool backing_store_lock(void) {
+__attribute__((weak)) bool backing_store_lock(void) {
     return true;
 }
 
