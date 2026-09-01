@@ -10,9 +10,13 @@ endif
 #
 # Raspberry Pi Pico SDK Support
 ##############################################################################
+CRT0_EXTRA_CORES_NUMBER ?= 0
 ADEFS  += -DCRT0_VTOR_INIT=1 \
-		  -DCRT0_EXTRA_CORES_NUMBER=0 \
+		  -DCRT0_EXTRA_CORES_NUMBER=$(CRT0_EXTRA_CORES_NUMBER) \
           -DCRT0_INIT_VECTORS=1
+# crt1.c provides the core1 init symbols under CRT0_EXTRA_CORES_NUMBER > 0,
+# so the C side needs the same define as the assembler side.
+OPT_DEFS += -DCRT0_EXTRA_CORES_NUMBER=$(CRT0_EXTRA_CORES_NUMBER)
 
 CFLAGS += -DPICO_NO_FPGA_CHECK \
           -DNDEBUG
