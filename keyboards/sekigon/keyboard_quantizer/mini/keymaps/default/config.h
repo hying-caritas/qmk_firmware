@@ -3,6 +3,10 @@
 
 #pragma once
 
+/* Allow VIA to read the switch matrix state (required for VIA's Test Matrix
+ * feature; without it the matrix state always reports zero). */
+#define VIA_INSECURE
+
 #define MATRIX_COLS_DEFAULT 8
 #define MATRIX_MSG_ROWS 31
 
